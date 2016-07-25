@@ -2,17 +2,13 @@
 Models for GridGame
 copyright Tynan Burke
 www.tynanburke.com
-all rights reserved
+some rights reserved, GPL etc.
 '''
 
 
 class BaseGGObject(object):
 	_gg_version = 'GridGame v0.1'
 
-	'''
-	def __init__(self, *args, **kwargs):
-		super(BaseGGObject, self).__init__()
-	'''
 
 class Game(BaseGGObject):
 	'''
@@ -20,6 +16,7 @@ class Game(BaseGGObject):
 	'''
 	tiles = set()
 	gps_step = 1
+	centroid = None
 
 	def get_tile(self, x, y):
 		test = [t for t in self.tiles if t.x == x and t.y == y]
@@ -27,6 +24,12 @@ class Game(BaseGGObject):
 			return test[0]
 		else:
 			return None
+
+	def __init__(self, lon, lat, step):
+		self.centroid = Tile(lon=lon, lat=lat, name="centroid")
+		Tile.register(self.centroid, self)
+		self.gps_step = step
+		super(Game, self).__init__()
 
 
 class Tile(BaseGGObject):
@@ -73,7 +76,7 @@ class Tile(BaseGGObject):
 
 	@classmethod
 	def point_in_tile(cls, current_lon, current_lat)
-		sorted_tiles_lon = sorted(cls.game.tiles, key=lambda t: t.lon)
+		sorted_lon = sorted(cls.game.tiles, key=lambda t: t.lon)
 		x_index = None
 		while not x_index:
 			test = sorted_tiles_lon.pop()
@@ -81,10 +84,14 @@ class Tile(BaseGGObject):
 				x_index = test
 		if not x_index:
 			return None
-
-
-		sorted_tiles_lat = sorted(cls.game.tiles, key=lambda t: t.lat)
-
+		sorted_lat = sorted(cls.game.tiles, key=lambda t: t.lat)
+		filtered_sorted_lat = filter(lambda t: t.lon == x_index.lon, sorted_lat)
+		result_tile = None
+		while not result_tile:
+			test = filtered_sorted_lat.pop()
+			if test.lat <= current_lat:
+				result_tile = test
+		return result_tile
 
 	@classmethod
 	def register(cls, tiles, game):
@@ -92,6 +99,7 @@ class Tile(BaseGGObject):
 		add tile or list/set of tiles to game
 		'''
 		if type(tiles) == Tile:
+			cls.game = game
 			game.tiles.add(tiles)
 		elif type(tiles) == list or type(tiles) == set:
 			tiles = set([t for t in tiles if type(t) == Tile])
@@ -100,12 +108,16 @@ class Tile(BaseGGObject):
 		else:
 			raise TypeError('register takes Tile objects or lists/sets of Tile objects')
 
-
 	def __repr__(self):
 		return '"%s": %s' % (self.name, self.coords)
 
-	def __init__(self, x=None, y=None, name=None):
+	def __init__(self, x=None, y=None, lon=None, lat=None, name=None, game=None):
 		self.x = x or -1
 		self.y = y or -1
+		self.lon = lon or 0
+		self.lat = lat or 0
 		self.name = name or 'default tile name'
+		if game:
+			Tile.register(self, game)
+			self.game = game
 		super(Tile, self).__init__()
