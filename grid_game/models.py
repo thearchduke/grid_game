@@ -12,18 +12,13 @@ class BaseGGObject(object):
 
 class Game(BaseGGObject):
 	'''
+	Game object for GridGame
+	holds tiles
 	note that everything here is for square tiles right now
 	'''
 	tiles = set()
 	gps_step = 1
 	centroid = None
-
-	def get_tile(self, x, y):
-		test = [t for t in self.tiles if t.x == x and t.y == y]
-		if test:
-			return test[0]
-		else:
-			return None
 
 	def __init__(self, lon, lat, step):
 		self.centroid = Tile(lon=lon, lat=lat, name="centroid")
@@ -75,7 +70,18 @@ class Tile(BaseGGObject):
 		return (self.x, self.y)
 
 	@classmethod
-	def point_in_tile(cls, current_lon, current_lat)
+	def get_by_coords(cls, x, y):
+		'''
+		return tile x,y or None
+		'''
+		test = [t for t in cls.game.tiles if t.x == x and t.y == y]
+		if test:
+			return test[0]
+		else:
+			return None
+
+	@classmethod
+	def get_by_gps(cls, current_lon, current_lat)
 		sorted_lon = sorted(cls.game.tiles, key=lambda t: t.lon)
 		x_index = None
 		while not x_index:
