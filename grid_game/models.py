@@ -8,6 +8,7 @@ some rights reserved, GPL etc.
 
 class BaseGGObject(object):
 	_gg_version = 'GridGame v0.1'
+	_grid_type = 'square'
 
 
 class Game(BaseGGObject):
@@ -20,9 +21,31 @@ class Game(BaseGGObject):
 	gps_step = 1
 	centroid = None
 
+	@property
+	def corners(self):
+		tiles = sorted(self.tiles, key=lambda t: (t.lon, t.lat))
+		tiles = [(t.lon, t.lat) for t in tiles]
+		SW, NE = tiles[0], tiles[-1]
+		return {
+			'SW': (SW[0], SW[1]), 
+			'NW': (SW[0], NE[1]),
+			'NE': (NE[0], NE[1]),
+			'SE': (NE[0], SW[1])
+			}
+	
+	def is_in_game(self, test_lon, test_lat):
+		corners = self.corners
+		if test_lon < corners['SW'][0]:
+			return False
+		if test_lon > corners['SE'][0]:
+			return False
+		if test_lat < corners['SW'][1]:
+			return False
+		if test_lat > corners['NW'][1]:
+			return False		
+		return True
+
 	def __init__(self, lon, lat, step):
-		self.centroid = Tile(lon=lon, lat=lat, name="centroid")
-		Tile.register(self.centroid, self)
 		self.gps_step = step
 		super(Game, self).__init__()
 
@@ -55,7 +78,7 @@ class Tile(BaseGGObject):
 
 		return {'N': N, 'NE': NE, 'E': E, 'SE': SE, 'S': S, 'SW': SW, 'W': W, 'NW': NW}
 
-	def bounding_box(self):
+	def _bounding_box(self):
 		'''
 		gps bounding box of tile
 		'''
@@ -81,15 +104,19 @@ class Tile(BaseGGObject):
 			return None
 
 	@classmethod
-	def get_by_gps(cls, current_lon, current_lat)
+	def get_by_gps(cls, current_lon, current_lat):
+		'''
+		return tile containing current_lon and current_lat
+		or None
+		'''
+		if not cls.game.is_in_game(current_lon, current_lat):
+			return None
 		sorted_lon = sorted(cls.game.tiles, key=lambda t: t.lon)
 		x_index = None
 		while not x_index:
-			test = sorted_tiles_lon.pop()
+			test = sorted_lon.pop()
 			if test.lon <= current_lon:
 				x_index = test
-		if not x_index:
-			return None
 		sorted_lat = sorted(cls.game.tiles, key=lambda t: t.lat)
 		filtered_sorted_lat = filter(lambda t: t.lon == x_index.lon, sorted_lat)
 		result_tile = None
@@ -118,8 +145,8 @@ class Tile(BaseGGObject):
 		return '"%s": %s' % (self.name, self.coords)
 
 	def __init__(self, x=None, y=None, lon=None, lat=None, name=None, game=None):
-		self.x = x or -1
-		self.y = y or -1
+		self.x = x or None
+		self.y = y or None
 		self.lon = lon or 0
 		self.lat = lat or 0
 		self.name = name or 'default tile name'
