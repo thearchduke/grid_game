@@ -5,11 +5,7 @@ www.tynanburke.com
 some rights reserved, GPL etc.
 '''
 
-
-class BaseGGObject(object):
-	_gg_version = 'GridGame v0.1'
-	_grid_type = 'square'
-
+from grid_game.models.base import BaseGGObject
 
 class Game(BaseGGObject):
 	'''
@@ -17,7 +13,6 @@ class Game(BaseGGObject):
 	holds tiles
 	note that everything here is for square tiles right now
 	'''
-	tiles = set()
 	gps_step = 1
 	centroid = None
 
@@ -53,6 +48,7 @@ class Game(BaseGGObject):
 			return None
 
 	def __init__(self, lon, lat, step):
+		self.tiles = set()
 		self.gps_step = step
 		super(Game, self).__init__()
 
@@ -62,6 +58,8 @@ class Tile(BaseGGObject):
 	name = ''
 	x,y = -1,-1
 	'''x,y coordinates on the grid'''
+
+	_allowed_resources = ['oil', 'water', 'labor', 'cash']
 
 	lon,lat = 0,0
 	'''lon,lat of SW corner'''
@@ -157,6 +155,7 @@ class Tile(BaseGGObject):
 		self.lon = lon or 0
 		self.lat = lat or 0
 		self.name = name or 'default tile name'
+		self.resources = {r:0 for r in self._allowed_resources}
 		if game:
 			Tile.register(self, game)
 			self.game = game

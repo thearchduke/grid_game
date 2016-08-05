@@ -2,3 +2,4 @@ venv_ggame/*
 *.pyc
 sandbox.py
 test.py
+.DS_Store
