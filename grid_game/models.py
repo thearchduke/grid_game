@@ -45,6 +45,13 @@ class Game(BaseGGObject):
 			return False		
 		return True
 
+	def get_tile(self, x, y):
+		out_tile = [t for t in self.tiles if t.x == x and t.y == y]
+		if out_tile:
+			return out_tile[0]
+		else:
+			return None
+
 	def __init__(self, lon, lat, step):
 		self.gps_step = step
 		super(Game, self).__init__()
