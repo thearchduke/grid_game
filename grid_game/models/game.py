@@ -7,6 +7,8 @@ some rights reserved, GPL etc.
 
 from grid_game.models.base import BaseGGObject
 
+import networkx as nx
+
 class Game(BaseGGObject):
 	'''
 	Game object for GridGame
@@ -18,6 +20,9 @@ class Game(BaseGGObject):
 
 	@property
 	def corners(self):
+		'''
+		returns extreme corners of the game grid
+		'''
 		tiles = sorted(self.tiles, key=lambda t: (t.lon, t.lat))
 		tiles = [(t.lon, t.lat) for t in tiles]
 		SW, NE = tiles[0], tiles[-1]
@@ -29,6 +34,9 @@ class Game(BaseGGObject):
 			}
 	
 	def is_in_game(self, test_lon, test_lat):
+		'''
+		returns True if tile within bounds of game @corners else false
+		'''
 		corners = self.corners
 		if test_lon < corners['SW'][0]:
 			return False
@@ -40,39 +48,113 @@ class Game(BaseGGObject):
 			return False		
 		return True
 
-	def get_tile(self, x, y):
+	def get_tile_by_coords(self, x, y):
+		'''
+		get tile by coordinates
+		'''
 		out_tile = [t for t in self.tiles if t.x == x and t.y == y]
 		if out_tile:
 			return out_tile[0]
 		else:
 			return None
 
-	def populate(self):
-		pass
+	def get_tile_by_gps(self, current_lon, current_lat):
+		'''
+		return tile containing current_lon and current_lat
+		or None
+		'''
+		if not self.is_in_game(current_lon, current_lat):
+			return None
+		sorted_lon = sorted(self.tiles, key=lambda t: t.lon)
+		x_index = None
+		while not x_index:
+			test = sorted_lon.pop()
+			if test.lon <= current_lon:
+				x_index = test
+		sorted_lat = sorted(self.tiles, key=lambda t: t.lat)
+		filtered_sorted_lat = filter(lambda t: t.lon == x_index.lon, sorted_lat)
+		result_tile = None
+		while not result_tile:
+			test = filtered_sorted_lat.pop()
+			if test.lat <= current_lat:
+				result_tile = test
+		return result_tile
 
-	def __init__(self, lon, lat, step):
+	def _populate(self, start_width, start_height):
+		'''
+		populates the game grid with blank tiles with default properties
+		constructs game.graph with default edge resource costs for all edges including diagonals
+		'''
+		lon_limit = self.sw_lon + start_width * self.gps_step
+		lat_limit = self.sw_lat + start_height * self.gps_step
+		tiles = []
+		x, y = 1, 1
+		current_lat = self.sw_lat
+
+		while current_lat < lat_limit:
+			x = 1
+			current_lon = self.sw_lon
+			while current_lon < lon_limit:
+				t = Tile(x=x, y=y, lon=current_lon, lat=current_lat)
+				current_lon += self.gps_step
+				x += 1
+				tiles.append(t)
+			current_lat += self.gps_step
+			y += 1
+		self.add_tiles(tiles, populate=True)
+
+	def add_tiles(self, tiles, populate=False):
+		'''
+		adds tile or tiles to game.tiles, game.graph
+		returns False, skips game.graph operations if no difference from previous game state
+		else returns True
+		'''
+		if type(tiles) != list:
+			tiles = [tiles]
+		cache = set([t for t in self.tiles])
+		self.tiles.update(tiles)
+		if self.tiles == cache:
+			return False
+		for t in tiles:
+			t.game = self
+			self.graph.add_node(t.coords)
+			neighbors = t.neighbors()
+			for n in neighbors:
+				if neighbors[n]:
+					if populate:
+						self.graph.add_edge(t.coords, neighbors[n].coords, t.costs)
+		return True
+
+	def __init__(self, **kwargs):
+		self.sw_lon = kwargs.get('lon')
+		self.sw_lat = kwargs.get('lat')
 		self.tiles = set()
-		self.gps_step = step
+		self.gps_step = kwargs.get('gps_step')
+		self.graph = nx.Graph()
+		self._populate(kwargs.get('start_width'), kwargs.get('start_height'))
 		super(Game, self).__init__()
 
 
 class Tile(BaseGGObject):
-
+	'''
+	Tile object for GridGame
+	'''
 	def neighbors(self):
 		'''
 		Get neighbors surrounding tile
+		includes diagonals 
 		'''
 		if not self.game:
 			return 'tile not registered to a game'
 
-		N = self.game.get_tile(self.x, self.y+1)
-		NE = self.game.get_tile(self.x+1, self.y+1)
-		E = self.game.get_tile(self.x+1, self.y)
-		SE = self.game.get_tile(self.x+1, self.y-1)
-		S = self.game.get_tile(self.x, self.y-1)
-		SW = self.game.get_tile(self.x-1, self.y-1)
-		W = self.game.get_tile(self.x-1, self.y)
-		NW = self.game.get_tile(self.x-1, self.y+1)
+		N = self.game.get_tile_by_coords(self.x, self.y+1)
+		NE = self.game.get_tile_by_coords(self.x+1, self.y+1)
+		E = self.game.get_tile_by_coords(self.x+1, self.y)
+		SE = self.game.get_tile_by_coords(self.x+1, self.y-1)
+		S = self.game.get_tile_by_coords(self.x, self.y-1)
+		SW = self.game.get_tile_by_coords(self.x-1, self.y-1)
+		W = self.game.get_tile_by_coords(self.x-1, self.y)
+		NW = self.game.get_tile_by_coords(self.x-1, self.y+1)
 
 		return {'N': N, 'NE': NE, 'E': E, 'SE': SE, 'S': S, 'SW': SW, 'W': W, 'NW': NW}
 
@@ -86,59 +168,10 @@ class Tile(BaseGGObject):
 			'SE': (self.lon+step, self.lat), 
 			'SW': (self.lon, self.lat)}
 
+
 	@property
 	def coords(self):
 		return (self.x, self.y)
-
-	@classmethod
-	def get_by_coords(cls, x, y):
-		'''
-		return tile x,y or None
-		'''
-		test = [t for t in cls.game.tiles if t.x == x and t.y == y]
-		if test:
-			return test[0]
-		else:
-			return None
-
-	@classmethod
-	def get_by_gps(cls, current_lon, current_lat):
-		'''
-		return tile containing current_lon and current_lat
-		or None
-		'''
-		if not cls.game.is_in_game(current_lon, current_lat):
-			return None
-		sorted_lon = sorted(cls.game.tiles, key=lambda t: t.lon)
-		x_index = None
-		while not x_index:
-			test = sorted_lon.pop()
-			if test.lon <= current_lon:
-				x_index = test
-		sorted_lat = sorted(cls.game.tiles, key=lambda t: t.lat)
-		filtered_sorted_lat = filter(lambda t: t.lon == x_index.lon, sorted_lat)
-		result_tile = None
-		while not result_tile:
-			test = filtered_sorted_lat.pop()
-			if test.lat <= current_lat:
-				result_tile = test
-		return result_tile
-
-	@classmethod
-	def register(cls, tiles, game):
-		'''
-		add tile or list/set of tiles to game
-		'''
-		if type(tiles) == Tile:
-			cls.game = game
-			game.tiles.add(tiles)
-		elif type(tiles) == list or type(tiles) == set:
-			tiles = set([t for t in tiles if type(t) == Tile])
-			for t in tiles:
-				t.game = game
-			game.tiles.update(tiles)
-		else:
-			raise TypeError('register takes Tile objects or lists/sets of Tile objects')
 
 	@classmethod
 	def shortest_path(cls, start, end, resource=None):
@@ -155,6 +188,9 @@ class Tile(BaseGGObject):
 		return '"%s": %s' % (self.name, self.coords)
 
 	def __init__(self, **kwargs):#x=None, y=None, lon=None, lat=None, name=None, game=None, resources=None):
+		'''
+		lon, lat are SW corner
+		'''
 		self.x = kwargs.get('x') or None
 		self.y = kwargs.get('y') or None
 		self.lon = kwargs.get('lon') or 0
@@ -162,6 +198,7 @@ class Tile(BaseGGObject):
 		self.name = kwargs.get('name') or 'default tile name'
 
 		_allowed_resources = ['oil', 'water', 'labor', 'cash']
+		self.costs = kwargs.get('costs') or {r:100 for r in _allowed_resources}
 		self.resources = kwargs.get('resources') or {r:0 for r in _allowed_resources}
 
 		if kwargs.get('game'):
