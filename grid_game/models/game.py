@@ -47,6 +47,9 @@ class Game(BaseGGObject):
 		else:
 			return None
 
+	def populate(self):
+		pass
+
 	def __init__(self, lon, lat, step):
 		self.tiles = set()
 		self.gps_step = step
@@ -54,16 +57,6 @@ class Game(BaseGGObject):
 
 
 class Tile(BaseGGObject):
-	game = None
-	name = ''
-	x,y = -1,-1
-	'''x,y coordinates on the grid'''
-
-	_allowed_resources = ['oil', 'water', 'labor', 'cash']
-
-	lon,lat = 0,0
-	'''lon,lat of SW corner'''
-	#reminder: latitude describe north/south
 
 	def neighbors(self):
 		'''
@@ -141,22 +134,39 @@ class Tile(BaseGGObject):
 			game.tiles.add(tiles)
 		elif type(tiles) == list or type(tiles) == set:
 			tiles = set([t for t in tiles if type(t) == Tile])
-			cls.game = game
+			for t in tiles:
+				t.game = game
 			game.tiles.update(tiles)
 		else:
 			raise TypeError('register takes Tile objects or lists/sets of Tile objects')
 
+	@classmethod
+	def shortest_path(cls, start, end, resource=None):
+		if not (start.game and end.game):
+			raise KeyError('start and end must have associated games')
+		elif start.game != end.game:
+			raise ValueError('start and end must have the same game')
+		if resource:
+			pass
+		else:
+			pass
+
 	def __repr__(self):
 		return '"%s": %s' % (self.name, self.coords)
 
-	def __init__(self, x=None, y=None, lon=None, lat=None, name=None, game=None):
-		self.x = x or None
-		self.y = y or None
-		self.lon = lon or 0
-		self.lat = lat or 0
-		self.name = name or 'default tile name'
-		self.resources = {r:0 for r in self._allowed_resources}
-		if game:
-			Tile.register(self, game)
-			self.game = game
+	def __init__(self, **kwargs):#x=None, y=None, lon=None, lat=None, name=None, game=None, resources=None):
+		self.x = kwargs.get('x') or None
+		self.y = kwargs.get('y') or None
+		self.lon = kwargs.get('lon') or 0
+		self.lat = kwargs.get('lat') or 0
+		self.name = kwargs.get('name') or 'default tile name'
+
+		_allowed_resources = ['oil', 'water', 'labor', 'cash']
+		self.resources = kwargs.get('resources') or {r:0 for r in _allowed_resources}
+
+		if kwargs.get('game'):
+			Tile.register(self, kwargs.get('game'))
+			self.game = kwargs.get('game')
+		else:
+			self.game = None
 		super(Tile, self).__init__()
