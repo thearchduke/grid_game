@@ -4,10 +4,12 @@ copyright Tynan Burke
 www.tynanburke.com
 some rights reserved, GPL etc.
 '''
+import random
 
-from grid_game.models.base import BaseGGObject
-
+from base import BaseGGObject, GAME_OPTS
 import networkx as nx
+
+GAME_OPTS = GAME_OPTS()
 
 class Game(BaseGGObject):
 	'''
@@ -15,8 +17,6 @@ class Game(BaseGGObject):
 	holds tiles
 	note that everything here is for square tiles right now
 	'''
-	gps_step = 1
-	centroid = None
 
 	@property
 	def corners(self):
@@ -95,7 +95,8 @@ class Game(BaseGGObject):
 			x = 1
 			current_lon = self.sw_lon
 			while current_lon < lon_limit:
-				t = Tile(x=x, y=y, lon=current_lon, lat=current_lat)
+				t = Tile(x=x, y=y, lon=current_lon, lat=current_lat,
+					populate_tile_method=GAME_OPTS.populate_tile_method)
 				current_lon += self.gps_step
 				x += 1
 				tiles.append(t)
@@ -128,10 +129,22 @@ class Game(BaseGGObject):
 	def __init__(self, **kwargs):
 		self.sw_lon = kwargs.get('lon')
 		self.sw_lat = kwargs.get('lat')
-		self.tiles = set()
 		self.gps_step = kwargs.get('gps_step')
+
+		if not (self.gps_step and self.sw_lat and self.sw_lon and 
+			kwargs.get('start_width') and kwargs.get('start_height')):
+
+			raise ValueError("a game needs a sw_lon, sw_lat, start_width, start_height, and gps_step")
+
+		self.tiles = set()
 		self.graph = nx.Graph()
+
+		GAME_OPTS.populate_tile_method = kwargs.get('populate_tile_method') or GAME_OPTS.populate_tile_method
+		if GAME_OPTS.populate_tile_method not in GAME_OPTS.populate_tile_methods:
+			raise ValueError("populate_tile_method must be allowed in GAME_OPTS: %s" % GAME_OPTS.populate_tile_method)
+
 		self._populate(kwargs.get('start_width'), kwargs.get('start_height'))
+
 		super(Game, self).__init__()
 
 
@@ -197,13 +210,23 @@ class Tile(BaseGGObject):
 		self.lat = kwargs.get('lat') or 0
 		self.name = kwargs.get('name') or 'default tile name'
 
-		_allowed_resources = ['oil', 'water', 'labor', 'cash']
-		self.costs = kwargs.get('costs') or {r:100 for r in _allowed_resources}
-		self.resources = kwargs.get('resources') or {r:0 for r in _allowed_resources}
+		pop_method = kwargs.get('populate_tile_method') or GAME_OPTS.populate_tile_method
+		allowed_resources = kwargs.get('allowed_resources') or GAME_OPTS.allowed_resources
+		resource_costs = kwargs.get('resource_costs') or GAME_OPTS.resource_costs
+
+		if pop_method == 'random':
+			self.costs = kwargs.get('costs') or {r:random.randint(1,100) for r in resource_costs}
+			self.resources = kwargs.get('resources') or {r:random.randint(1,100) for r in allowed_resources}
+		elif pop_method == 'fixed':
+			self.costs = kwargs.get('costs') or {r:100 for r in resource_costs}
+			self.resources = kwargs.get('resources') or {r:0 for r in allowed_resources}
+		else:
+			raise ValueError('unknown populate_tile_method: %s' % pop_method)
 
 		if kwargs.get('game'):
 			Tile.register(self, kwargs.get('game'))
 			self.game = kwargs.get('game')
 		else:
 			self.game = None
+
 		super(Tile, self).__init__()
