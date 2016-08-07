@@ -6,10 +6,10 @@ some rights reserved, GPL etc.
 '''
 import random
 
-from base import BaseGGObject, GAME_OPTS
+from base import BaseGGObject, GAME_SETTINGS
+from resources import BaseResource, BaseResourceStore
 import networkx as nx
 
-GAME_OPTS = GAME_OPTS()
 
 class Game(BaseGGObject):
 	'''
@@ -96,7 +96,7 @@ class Game(BaseGGObject):
 			current_lon = self.sw_lon
 			while current_lon < lon_limit:
 				t = Tile(x=x, y=y, lon=current_lon, lat=current_lat,
-					populate_tile_method=GAME_OPTS.populate_tile_method)
+					populate_tile_method=GAME_SETTINGS.populate_tile_method)
 				current_lon += self.gps_step
 				x += 1
 				tiles.append(t)
@@ -139,9 +139,9 @@ class Game(BaseGGObject):
 		self.tiles = set()
 		self.graph = nx.Graph()
 
-		GAME_OPTS.populate_tile_method = kwargs.get('populate_tile_method') or GAME_OPTS.populate_tile_method
-		if GAME_OPTS.populate_tile_method not in GAME_OPTS.populate_tile_methods:
-			raise ValueError("populate_tile_method must be allowed in GAME_OPTS: %s" % GAME_OPTS.populate_tile_method)
+		GAME_SETTINGS.populate_tile_method = kwargs.get('populate_tile_method') or GAME_SETTINGS.populate_tile_method
+		if GAME_SETTINGS.populate_tile_method not in GAME_SETTINGS.populate_tile_methods:
+			raise ValueError("populate_tile_method must be allowed in GAME_SETTINGS: %s" % GAME_SETTINGS.populate_tile_method)
 
 		self._populate(kwargs.get('start_width'), kwargs.get('start_height'))
 
@@ -210,9 +210,9 @@ class Tile(BaseGGObject):
 		self.lat = kwargs.get('lat') or 0
 		self.name = kwargs.get('name') or 'default tile name'
 
-		pop_method = kwargs.get('populate_tile_method') or GAME_OPTS.populate_tile_method
-		allowed_resources = kwargs.get('allowed_resources') or GAME_OPTS.allowed_resources
-		resource_costs = kwargs.get('resource_costs') or GAME_OPTS.resource_costs
+		pop_method = kwargs.get('populate_tile_method') or GAME_SETTINGS.populate_tile_method
+		allowed_resources = kwargs.get('allowed_resources') or GAME_SETTINGS.allowed_resources
+		resource_costs = kwargs.get('resource_costs') or GAME_SETTINGS.resource_costs
 
 		if pop_method == 'random':
 			self.costs = kwargs.get('costs') or {r:random.randint(1,100) for r in resource_costs}
