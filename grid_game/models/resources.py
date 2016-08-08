@@ -45,4 +45,4 @@ class BaseResourceStore(BaseGGObject):
 		self.maximium = kwargs.get('maximum') or GAME_SETTINGS.resource_max
 
 		super(BaseResourceStore, self).__init__()
-		pass
+

@@ -200,9 +200,9 @@ class Tile(BaseGGObject):
 	def __repr__(self):
 		return '"%s": %s' % (self.name, self.coords)
 
-	def __init__(self, **kwargs):#x=None, y=None, lon=None, lat=None, name=None, game=None, resources=None):
+	def __init__(self, **kwargs):
 		'''
-		lon, lat are SW corner
+		reminder: lon, lat are SW corner
 		'''
 		self.x = kwargs.get('x') or None
 		self.y = kwargs.get('y') or None
