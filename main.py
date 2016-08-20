@@ -1,12 +1,10 @@
 from grid_game.models import *
 from grid_game.utils import *
+from grid_game.views import app
 
+if __name__ == '__main__':
+	app.run(debug=True)
 
-game = Game(lon=1, lat=1, gps_step=0.5, start_width=6, start_height=6)
-start = game.get_tile_by_coords(1,1)
-end = game.get_tile_by_coords(6,6)
-print start.resources, start.costs
-print shortest_resource_path(game, start, end, 'c1')
 '''
 path = nx.shortest_path(game.graph, (1,1), (6,6), weight='r1')
 print path

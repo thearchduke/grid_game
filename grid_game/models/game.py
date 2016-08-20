@@ -27,10 +27,10 @@ class Game(BaseGGObject):
 		tiles = [(t.lon, t.lat) for t in tiles]
 		SW, NE = tiles[0], tiles[-1]
 		return {
-			'SW': (SW[0], SW[1]), 
-			'NW': (SW[0], NE[1]),
-			'NE': (NE[0], NE[1]),
-			'SE': (NE[0], SW[1])
+			'SW': {'lon': SW[0], 'lat': SW[1]}, 
+			'NW': {'lon': SW[0], 'lat': NE[1]},
+			'NE': {'lon': NE[0], 'lat': NE[1]},
+			'SE': {'lon': NE[0], 'last': SW[1]}
 			}
 	
 	def is_in_game(self, test_lon, test_lat):
@@ -38,13 +38,13 @@ class Game(BaseGGObject):
 		returns True if tile within bounds of game @corners else false
 		'''
 		corners = self.corners
-		if test_lon < corners['SW'][0]:
+		if test_lon < corners['SW']['lon']:
 			return False
-		if test_lon > corners['SE'][0]:
+		if test_lon > corners['SE']['lon']:
 			return False
-		if test_lat < corners['SW'][1]:
+		if test_lat < corners['SW']['lat']:
 			return False
-		if test_lat > corners['NW'][1]:
+		if test_lat > corners['NW']['lat']:
 			return False		
 		return True
 
@@ -127,9 +127,11 @@ class Game(BaseGGObject):
 		return True
 
 	def __init__(self, **kwargs):
-		self.sw_lon = kwargs.get('lon')
-		self.sw_lat = kwargs.get('lat')
+		self.lon = kwargs.get('lon')
+		self.lat = kwargs.get('lat')
 		self.gps_step = kwargs.get('gps_step')
+		self.sw_lon = self.lon - (self.gps_step * kwargs.get('start_width')/2)
+		self.sw_lat = self.lat - (self.gps_step * kwargs.get('start_height')/2)
 
 		if not (self.gps_step and self.sw_lat and self.sw_lon and 
 			kwargs.get('start_width') and kwargs.get('start_height')):
@@ -171,16 +173,25 @@ class Tile(BaseGGObject):
 
 		return {'N': N, 'NE': NE, 'E': E, 'SE': SE, 'S': S, 'SW': SW, 'W': W, 'NW': NW}
 
-	def _bounding_box(self):
+	@property
+	def corners(self):
 		'''
 		gps bounding box of tile
 		'''
 		step = self.game.gps_step
-		return {'NW': (self.lon, self.lat+step), 
-			'NE': (self.lon+step, self.lat+step), 
-			'SE': (self.lon+step, self.lat), 
-			'SW': (self.lon, self.lat)}
+		return {'NW': {'lon': self.lon, 'lat': self.lat+step}, 
+			'NE': {'lon': self.lon+step, 'lat': self.lat+step}, 
+			'SE': {'lon': self.lon+step, 'lat': self.lat}, 
+			'SW': {'lon': self.lon, 'lat': self.lat}}
 
+	@property
+	def center(self):
+		'''
+		gps centroid
+		Tile.lon, Tile.lat are SW corner
+		'''
+		step = self.game.gps_step
+		return {'lon': self.lon + step/2, 'lat': self.lat + step/2}
 
 	@property
 	def coords(self):

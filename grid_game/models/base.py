@@ -1,3 +1,4 @@
+import ConfigParser
 import datetime
 
 class GAME_OPTS(object):
@@ -10,6 +11,11 @@ class GAME_OPTS(object):
 		self.resource_max = 500		
 		self.testing = True
 		self.debug = True
+
+		# secure stuff
+		Config = ConfigParser.ConfigParser()
+		Config.read('grid_game/config.ini')
+		self.GOOGLE_MAPS_API_KEY = Config.get("Google", "MAPS_API_KEY")
 
 
 class BaseGGObject(object):
