@@ -3,3 +3,5 @@ venv_ggame/*
 sandbox.py
 test.py
 .DS_Store
+config.py
+grid_game/config.py
