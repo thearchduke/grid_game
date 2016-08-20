@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 50% }
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjJ8q2pujJrFgoQ-_8oMhcj_qJvgVsf7Y&sensor=false">
+    </script>
+    <script type="text/javascript">
+
+    var testCircle;
+    var map;
+
+      function initialize() {
+        var mapOptions = {
+          center: new google.maps.LatLng(37.77495, -122.425039),
+          zoom: 15
+        };
+        map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+    }
+/*
+
+    //allCircles = new Array();
+    circle25s = new Array();
+    circle23s = new Array();
+
+    circle6s = new Array();
+    circle7s = new Array();
+    circle8s = new Array();
+    circle19s = new Array();
+    circle20s = new Array();
+    circle21s = new Array();
+    circle22s = new Array();
+
+    {% for place in places %}c{{ place[4] }} = new google.maps.Circle({strokeColor: "#00ee00",strokeOpacity: 0.2,strokeWeight: 2,fillColor: "#00ee00",fillOpacity: 0.02,map:map,center: new google.maps.LatLng({{ place[1] }},{{ place[0] }}),radius: {{ place[2] }} });circle{{ place[3] }}s.push(c{{ place[4] }});{% endfor %}
+
+    add23();
+    add25();
+    }
+
+
+    function add23() {
+        for (var i = 0; i < circle23s.length; i++) {
+            circle23s[i].setMap(map);
+        }
+};
+
+    function remove23() {
+        for (var i = 0; i < circle23s.length; i++) {
+            circle23s[i].setMap(null);
+        }
+};
+
+    function add25() {
+        for (var i = 0; i < circle25s.length; i++) {
+            circle25s[i].setMap(map);
+        }
+};
+
+    function remove25() {
+        for (var i = 0; i < circle25s.length; i++) {
+            circle25s[i].setMap(null);
+        }
+};
+
+    function add6() {
+        for (var i = 0; i < circle6s.length; i++) {
+            circle6s[i].setMap(map);
+        }
+};
+
+    function remove6() {
+        for (var i = 0; i < circle6s.length; i++) {
+            circle6s[i].setMap(null);
+        }
+};
+
+    function add7() {
+        for (var i = 0; i < circle7s.length; i++) {
+            circle7s[i].setMap(map);
+        }
+};
+
+    function remove7() {
+        for (var i = 0; i < circle7s.length; i++) {
+            circle7s[i].setMap(null);
+        }
+};
+
+    function add8() {
+        for (var i = 0; i < circle8s.length; i++) {
+            circle8s[i].setMap(map);
+        }
+};
+
+    function remove8() {
+        for (var i = 0; i < circle8s.length; i++) {
+            circle8s[i].setMap(null);
+        }
+};
+
+    function add19() {
+        for (var i = 0; i < circle19s.length; i++) {
+            circle19s[i].setMap(map);
+        }
+};
+
+    function remove19() {
+        for (var i = 0; i < circle19s.length; i++) {
+            circle19s[i].setMap(null);
+        }
+};
+
+    function add20() {
+        for (var i = 0; i < circle20s.length; i++) {
+            circle20s[i].setMap(map);
+        }
+};
+
+    function remove20() {
+        for (var i = 0; i < circle20s.length; i++) {
+            circle20s[i].setMap(null);
+        }
+};
+
+    function add21() {
+        for (var i = 0; i < circle21s.length; i++) {
+            circle21s[i].setMap(map);
+        }
+};
+
+    function remove21() {
+        for (var i = 0; i < circle21s.length; i++) {
+            circle21s[i].setMap(null);
+        }
+};
+
+    function add20() {
+        for (var i = 0; i < circle20s.length; i++) {
+            circle20s[i].setMap(map);
+        }
+};
+
+    function remove22() {
+        for (var i = 0; i < circle22s.length; i++) {
+            circle22s[i].setMap(null);
+        }
+};
+*/
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+    <div id="everything-else">
+        <h1>Hi!</h1>
+    </div>
+    <div id="map-canvas" style="height:80%"/>
+  </body>
+</html>

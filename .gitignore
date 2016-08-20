@@ -5,3 +5,5 @@ test.py
 .DS_Store
 config.py
 grid_game/config.py
+config.ini
+grid_game/config.ini
