@@ -85,8 +85,8 @@ class Game(BaseGGObject):
 		populates the game grid with blank tiles with default properties
 		constructs game.graph with default edge resource costs for all edges including diagonals
 		'''
-		lon_limit = self.sw_lon + start_width * self.gps_step
-		lat_limit = self.sw_lat + start_height * self.gps_step
+		lon_limit = self.sw_lon + start_width * self.gps_step - self.gps_step*.1
+		lat_limit = self.sw_lat + start_height * self.gps_step - self.gps_step*.1
 		tiles = []
 		x, y = 1, 1
 		current_lat = self.sw_lat
@@ -130,8 +130,8 @@ class Game(BaseGGObject):
 		self.lon = kwargs.get('lon')
 		self.lat = kwargs.get('lat')
 		self.gps_step = kwargs.get('gps_step')
-		self.sw_lon = self.lon - (self.gps_step * kwargs.get('start_width')/2)
-		self.sw_lat = self.lat - (self.gps_step * kwargs.get('start_height')/2)
+		self.sw_lon = self.lon - (self.gps_step * kwargs.get('start_width')/2.0)
+		self.sw_lat = self.lat - (self.gps_step * kwargs.get('start_height')/2.0)
 
 		if not (self.gps_step and self.sw_lat and self.sw_lon and 
 			kwargs.get('start_width') and kwargs.get('start_height')):

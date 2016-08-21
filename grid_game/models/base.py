@@ -3,7 +3,7 @@ import datetime
 
 class GAME_OPTS(object):
 	def __init__(self):
-		self.populate_tile_methods = ['fixed', 'random']
+		self.populate_tile_methods = ['fixed', 'random', 'pickle']
 		self.populate_tile_method = 'random'
 		self.allowed_resources = ['r1', 'r2', 'r3', 'r4']
 		self.resource_costs = ['c1', 'c2', 'c3', 'c4']
@@ -15,7 +15,9 @@ class GAME_OPTS(object):
 		# secure stuff
 		Config = ConfigParser.ConfigParser()
 		Config.read('grid_game/config.ini')
-		self.GOOGLE_MAPS_API_KEY = Config.get("Google", "MAPS_API_KEY")
+		self.GOOGLE_MAPS_API_KEY = Config.get("google", "MAPS_API_KEY")
+		self.FOURSQUARE_CLIENT_ID = Config.get("foursquare", "CLIENT_ID")
+		self.FOURSQUARE_CLIENT_SECRET = Config.get("foursquare", "CLIENT_SECRET")
 
 
 class BaseGGObject(object):

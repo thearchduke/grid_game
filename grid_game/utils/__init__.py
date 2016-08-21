@@ -1,1 +1,1 @@
-from grid import shortest_resource_path
+from grid import shortest_resource_path, resource_path_length

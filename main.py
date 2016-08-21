@@ -1,9 +1,9 @@
 from grid_game.models import *
 from grid_game.utils import *
-from grid_game.views import app
+from grid_game import app
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run()
 
 '''
 path = nx.shortest_path(game.graph, (1,1), (6,6), weight='r1')
