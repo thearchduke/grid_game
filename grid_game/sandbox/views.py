@@ -10,16 +10,26 @@ try:
 except:
 	import pickle
 import random
+import logging
 
 
 
-
-def checkin(lon, lat):
-	pass
-
-def index(resource_kind):
+def _load_sandbox_game():
 	with open('game_foursquare.p', 'rb') as f:
 		game = pickle.load(f)
+	return game
+
+def checkin_page():
+	return render_template('checkin.html')
+
+def do_checkin(lat, lon):
+	game = _load_sandbox_game()
+	lat, lon = float(lat), float(lon)
+	tile = game.get_tile_by_gps(lat, lon)
+	return render_template('map_checkin.html', game=game, tile=tile)
+
+def index(resource_kind):
+	game = _load_sandbox_game()
 	start = game.get_tile_by_coords(1,1)
 	end = game.get_tile_by_coords(10,1)
 	sample_path = shortest_resource_path(game, start, end, resource_kind)

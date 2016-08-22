@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>GridGame | Sandbox</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+<link href="https://cdn.jsdelivr.net/picnicss/6.1.4/picnic.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
+<body>
+<div class="flex five">
+    <div class="fifth">
+        <h1>GridGame</h1>
+        <br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/>
+    </div>
+    <div class="fifth">
+        <h2>thank you for checking in.</h2>
+    </div>
+    <div class="three-fifth"><div id="map"></div></div>
+</div>
+
+            
+
+    <script>
+      $(document).ready(function() {
+        //
+      });
+
+      var map;
+      function initMap() {
+
+      map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 37.77495, lng: -122.425039},
+          zoom: 6,
+          mapTypeId: 'terrain'
+        });
+      sw = new google.maps.LatLng({{ game.corners.SW.lat }}, {{ game.corners.SW.lon }});
+      ne = new google.maps.LatLng({{ game.corners.NE.lat }}, {{ game.corners.NE.lon }});
+      bounds = new google.maps.LatLngBounds(sw, ne);
+      map.fitBounds(bounds);
+
+      var rectangle{{ tile.coords[0] }}{{ tile.coords[1] }} = new google.maps.Rectangle({
+        strokeColor: '#AA44CC',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#00FF22',
+        fillOpacity: 0.6,
+        map: map,
+        bounds: {
+          north: {{ tile.corners.NE.lat }},
+          south: {{ tile.corners.SW.lat }},
+          east: {{ tile.corners.NE.lon }},
+          west: {{ tile.corners.SW.lon }}
+        }
+      });
+
+      rectangle{{ tile.coords[0] }}{{ tile.coords[1] }}.set("Info", "{{ tile.resources[kind] }}");
+
+      google.maps.event.addListener(rectangle{{ tile.coords[0] }}{{ tile.coords[1] }}, 'click', function() {
+        var infoWindow = new google.maps.InfoWindow();
+        infoWindow.setContent("{{ kind }}: " + rectangle{{ tile.coords[0] }}{{ tile.coords[1] }}.get("Info"));
+
+        infoWindow.setPosition(new google.maps.LatLng({{ tile.center.lat }},{{ tile.center.lon }}));     
+        infoWindow.open(map);
+    });
+    }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config.game_settings.GOOGLE_MAPS_API_KEY }}&callback=initMap"
+    async defer></script>
+
+</body>
+
+</html>

@@ -33,7 +33,7 @@ class Game(BaseGGObject):
 			'SE': {'lon': NE[0], 'last': SW[1]}
 			}
 	
-	def is_in_game(self, test_lon, test_lat):
+	def is_in_game(self, test_lat, test_lon):
 		'''
 		returns True if tile within bounds of game @corners else false
 		'''
@@ -58,12 +58,12 @@ class Game(BaseGGObject):
 		else:
 			return None
 
-	def get_tile_by_gps(self, current_lon, current_lat):
+	def get_tile_by_gps(self, current_lat, current_lon):
 		'''
 		return tile containing current_lon and current_lat
 		or None
 		'''
-		if not self.is_in_game(current_lon, current_lat):
+		if not self.is_in_game(current_lat, current_lon):
 			return None
 		sorted_lon = sorted(self.tiles, key=lambda t: t.lon)
 		x_index = None

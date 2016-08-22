@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(filename='gridgame.log',level=logging.DEBUG)
+
 from grid_game.models import *
 from grid_game.utils import *
 from grid_game import app

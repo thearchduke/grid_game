@@ -10,3 +10,4 @@ grid_game/config.ini
 *.p
 *.pem
 notes.md
+*.log
