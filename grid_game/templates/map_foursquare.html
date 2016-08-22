@@ -19,7 +19,7 @@
     </style>
 
 <link href="https://cdn.jsdelivr.net/picnicss/6.1.4/picnic.min.css" rel="stylesheet">
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 </head>
 <body>
 <div class="flex five">
@@ -32,7 +32,7 @@
         <br/><br/><br/><br/><br/>
     </div>
     <div class="fifth">
-        <h2>resource optimization on path for cost c1, random generation</h2>
+        <h2>resource optimization on path for <span id="display_kind">{{ kind }}</span>, mined from foursquare</h2>
     </div>
     <div class="three-fifth"><div id="map"></div></div>
 </div>
@@ -40,6 +40,12 @@
             
 
     <script>
+      $(document).ready(function() {
+      kind = "{{ kind }}";
+      kind_to_display = kind.substring(0, kind.length-2);
+      $('#display_kind').text(kind_to_display);
+      });
+
       var map;
       function initMap() {
 

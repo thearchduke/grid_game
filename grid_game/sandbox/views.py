@@ -11,11 +11,17 @@ except:
 	import pickle
 import random
 
+
+
+
+def checkin(lon, lat):
+	pass
+
 def index(resource_kind):
 	with open('game_foursquare.p', 'rb') as f:
 		game = pickle.load(f)
 	start = game.get_tile_by_coords(1,1)
-	end = game.get_tile_by_coords(10,11)
+	end = game.get_tile_by_coords(10,1)
 	sample_path = shortest_resource_path(game, start, end, resource_kind)
 	path_to_render = [game.get_tile_by_coords(node[0], node[1]) for node in sample_path['path']]
 
