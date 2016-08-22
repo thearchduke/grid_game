@@ -18,6 +18,8 @@ class Game(BaseGGObject):
 	note that everything here is for square tiles right now
 	'''
 
+	checked_in_tiles = []
+
 	@property
 	def corners(self):
 		'''
