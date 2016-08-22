@@ -19,7 +19,7 @@ def _load_sandbox_game():
 		game = pickle.load(f)
 	return game
 
-def _save_sandbox_game():
+def _save_sandbox_game(game):
 	with open('game_foursquare.p', 'wb') as f:
 		pickle.dump(game, f)
 
@@ -32,7 +32,7 @@ def do_checkin(lat, lon):
 	tile = game.get_tile_by_gps(lat, lon)
 	game.checked_in_tiles.append(tile)
 	#print game.checked_in_tiles
-	_save_sandbox_game()
+	_save_sandbox_game(game)
 	return render_template('map_checkin.html', game=game, tile=tile)
 
 def index(resource_kind):
